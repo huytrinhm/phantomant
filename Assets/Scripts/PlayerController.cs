@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
 
 	private CinemachineBasicMultiChannelPerlin _cameraNoise;
 	private Coroutine _dashGhostRoutine = null;
+	private Animator _playerAnimator;
+	private SpriteRenderer _playerRenderer;
 
 	#region COMPONENTS
 	private Rigidbody2D rb;
@@ -50,6 +52,8 @@ public class PlayerController : MonoBehaviour
 	{
 		rb = GetComponent<Rigidbody2D>();
 		_cameraNoise = _camera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+		_playerAnimator = this.GetComponent<Animator>();
+		_playerRenderer = this.GetComponent<SpriteRenderer>();
 	}
 
     private void Start()
@@ -60,8 +64,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
 	{
-        #region EFFECT CHECKS
-		if(data.enableDustTrail && Mathf.Abs(rb.velocity.x) > 0.01f && _lastOnGroundTime > 0 && !_isJumping)
+
+		#region EFFECT CHECKS
+		if (data.enableDustTrail && Mathf.Abs(rb.velocity.x) > 0.01f && _lastOnGroundTime > 0 && !_isJumping)
         {
 			if(!_dustTrail.isPlaying) _dustTrail.Play();
         }
@@ -105,6 +110,12 @@ public class PlayerController : MonoBehaviour
 			if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
 				_lastOnGroundTime = data.coyoteTime;
 		}
+		#endregion
+
+		#region ANIMATION
+		_playerAnimator.SetFloat("velocity_x", Mathf.Abs(rb.velocity.x));
+		_playerAnimator.SetFloat("velocity_y", rb.velocity.y);
+		_playerAnimator.SetBool("onGround", (_lastOnGroundTime > 0));
 		#endregion
 
 		#region GRAVITY
@@ -356,7 +367,9 @@ public class PlayerController : MonoBehaviour
 	IEnumerator SpawnDashGhost()
     {
 		GameObject ghost = Instantiate(data.ghostPrefab, this.transform.position, this.transform.rotation);
+		ghost.transform.localScale = this.transform.localScale;
 		SpriteRenderer ghostRenderer = ghost.GetComponent<SpriteRenderer>();
+		ghostRenderer.sprite = _playerRenderer.sprite;
 		float elapsed = 0f;
 		while(elapsed < data.dashGhostFadeTime)
         {

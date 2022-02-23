@@ -61,7 +61,6 @@ public class PlayerData : ScriptableObject
 	public float dashGhostFadeTime;
 	public GameObject ghostPrefab;
 	public bool enableDustTrail;
-	public ParticleSystem dustTrail;
 
 
 	//OTHER

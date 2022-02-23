@@ -15,7 +15,7 @@ MonoBehaviour:
   gravityScale: 1
   fallGravityMult: 2
   quickFallGravityMult: 3
-  dragAmount: 0.01
+  dragAmount: 0.02
   frictionAmount: 0.5
   coyoteTime: 0.2
   runMaxSpeed: 15
@@ -26,7 +26,7 @@ MonoBehaviour:
   accelPower: 1
   stopPower: 1.2
   turnPower: 1.2
-  jumpForce: 7
+  jumpForce: 7.5
   jumpCutMultiplier: 0.7
   jumpBufferTime: 0.1
   dashAmount: 1
@@ -35,7 +35,7 @@ MonoBehaviour:
   dashAttackDragAmount: 1
   dashEndTime: 0
   dashUpEndMult: 0.1
-  dashEndRunLerp: 0.5
+  dashEndRunLerp: 0.3
   dashBufferTime: 0.05
   dashShakeAmount: 2
   dashShakeFrequency: 0.01
