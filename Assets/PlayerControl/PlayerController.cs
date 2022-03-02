@@ -19,8 +19,8 @@ public class PlayerController : MonoBehaviour
 	#endregion
 
 	#region STATE PARAMETERS
-	private bool _isFacingRight;
-	private bool _isJumping;
+	public bool IsFacingRight;
+	public bool _isJumping;
 	private bool _isDashing;
 
 
@@ -59,11 +59,13 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
 		SetGravityScale(data.gravityScale);
-		_isFacingRight = true;
+		IsFacingRight = true;
 	}
 
     private void Update()
 	{
+		if (Time.timeScale < 0.01f)
+			return;
 
 		#region EFFECT CHECKS
 		if (data.enableDustTrail && Mathf.Abs(rb.velocity.x) > 0.01f && _lastOnGroundTime > 0 && !_isJumping)
@@ -164,7 +166,7 @@ public class PlayerController : MonoBehaviour
 			if (_moveInput != Vector2.zero)
 				_lastDashDir = _moveInput;
 			else
-				_lastDashDir = _isFacingRight ? Vector2.right : Vector2.left;
+				_lastDashDir = IsFacingRight ? Vector2.right : Vector2.left;
 
 			_dashStartTime = Time.time;
 			_dashesLeft--;
@@ -268,7 +270,7 @@ public class PlayerController : MonoBehaviour
 		scale.x *= -1;
 		transform.localScale = scale;
 
-		_isFacingRight = !_isFacingRight;
+		IsFacingRight = !IsFacingRight;
 	}
 
 	private void Jump()
@@ -325,11 +327,11 @@ public class PlayerController : MonoBehaviour
 	#region CHECK METHODS
 	public void CheckDirectionToFace(bool isMovingRight)
 	{
-		if (isMovingRight != _isFacingRight)
+		if (isMovingRight != IsFacingRight)
 			Turn();
 	}
 
-	private bool CanJump()
+	public bool CanJump()
 	{
 		return _lastOnGroundTime > 0 && !_isJumping;
 	}
@@ -353,8 +355,8 @@ public class PlayerController : MonoBehaviour
 	}
     #endregion
 
-    #region EFFECTS
 
+    #region EFFECTS
 	IEnumerator DashGhost()
     {
         while (true)
