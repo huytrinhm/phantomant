@@ -5,7 +5,7 @@ using UnityEngine;
 public class MeleeAttackManager : MonoBehaviour
 {
     public float hitPerSec = 2;
-    public float defaultForce = 300;
+    //public float defaultForce = 300;
     public float movementTime = .1f;
     private bool meleeAttack;
    
@@ -24,7 +24,8 @@ public class MeleeAttackManager : MonoBehaviour
 
     private void Update()
     {
-        CheckInput();
+        if(!GameMaster.Instance.IsPaused)
+            CheckInput();
     }
 
     private void CheckInput()
@@ -43,6 +44,14 @@ public class MeleeAttackManager : MonoBehaviour
         if (meleeAttack)
         {
             _playerAnimation.SetTrigger("Attack");
+            StartCoroutine(AttackAnimator());
         }
+    }
+
+    IEnumerator AttackAnimator()
+    {
+        _playerAnimation.SetBool("isAttacking", true);
+        yield return new WaitForSeconds(movementTime);
+        _playerAnimation.SetBool("isAttacking", false);
     }
 }

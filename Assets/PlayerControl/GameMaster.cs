@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Cinemachine;
+using UnityEngine.SceneManagement;
 
 public class GameMaster : MonoBehaviour
 {
@@ -217,5 +218,10 @@ public class GameMaster : MonoBehaviour
     {
         AudioManager.Instance.SoundEffectVolume = _soundEffectSlider.value;
         _soundEffectText.text = (AudioManager.Instance.SoundEffectVolume * 100).ToString();
+    }
+
+    public void ReloadLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

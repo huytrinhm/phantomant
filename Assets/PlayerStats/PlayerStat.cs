@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyHealth : MonoBehaviour
+public class PlayerStat : MonoBehaviour
 {
     [SerializeField] private bool damageable = true;
     [SerializeField] private float maxHealth = 100;
     [SerializeField] private float invulnerabilityTime = .2f;
     [SerializeField] [Range(0, 1)] private float fadeAmount = .2f;
     [SerializeField] private Slider healthBar;
-    [SerializeField] private float knockbackHorizontalForce = 3f;
-    [SerializeField] private float knockbackVerticalForce = 1.5f;
+    // [SerializeField] private float knockbackHorizontalForce = 3f;
+    // [SerializeField] private float knockbackVerticalForce = 1.5f;
     private Rigidbody2D rb;
 
     private bool hit;
@@ -49,7 +49,7 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    public void Damage(int amount, Vector2 direction)
+    public void Damage(float knockbackHorizontalForce, float knockbackVerticalForce, int amount, Vector2 direction)
     {
         if (damageable && !hit && currentHealth > 0)
         {
@@ -60,9 +60,9 @@ public class EnemyHealth : MonoBehaviour
             knockbackForce = direction * knockbackHorizontalForce + Vector2.up * knockbackVerticalForce;
             if (currentHealth <= 0)
             {
-                currentHealth = 0;   
-                Destroy(gameObject);
-                // gameObject.SetActive(false);
+                currentHealth = 0;
+                Debug.Log("GameOver");
+                GameMaster.Instance.ReloadLevel();
             }
             else
             {

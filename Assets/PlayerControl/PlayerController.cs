@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private PlayerData data;
 	[SerializeField] private CinemachineVirtualCamera _camera;
 	[SerializeField] private ParticleSystem _dustTrail;
+	[SerializeField] private Transform statsUI;
 
 	private CinemachineBasicMultiChannelPerlin _cameraNoise;
 	private Coroutine _dashGhostRoutine = null;
@@ -269,6 +270,9 @@ public class PlayerController : MonoBehaviour
 		Vector3 scale = transform.localScale;
 		scale.x *= -1;
 		transform.localScale = scale;
+		scale = statsUI.localScale;
+		scale.x *= -1;
+		statsUI.localScale = scale;
 
 		IsFacingRight = !IsFacingRight;
 	}

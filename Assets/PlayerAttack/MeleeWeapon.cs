@@ -5,18 +5,16 @@ using UnityEngine;
 public class MeleeWeapon : MonoBehaviour
 {
     [SerializeField] private int damageAmount = 20;
-    private PlayerController playerController;
     
     private Rigidbody2D rb;
     private MeleeAttackManager meleeAttackManager;
     private Vector2 direction;
    
-    private bool collided;
+    //private bool collided;
 
     private void Awake()
     {
-        rb = GetComponentInParent<Rigidbody2D>();
-        playerController = GetComponentInParent<PlayerController>();
+        //rb = GetComponentInParent<Rigidbody2D>();
         meleeAttackManager = GetComponentInParent<MeleeAttackManager>();
     }
 
@@ -27,10 +25,10 @@ public class MeleeWeapon : MonoBehaviour
 
      private void HandleMovement()
     {
-        if (collided)
-        {
-            rb.AddForce(direction * meleeAttackManager.defaultForce);
-        }
+        //if (collided)
+        //{
+        //    rb.AddForce(direction * meleeAttackManager.defaultForce);
+        //}
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,20 +41,20 @@ public class MeleeWeapon : MonoBehaviour
 
     private void HandleCollision(EnemyHealth objHealth)
     {
-        if (playerController.IsFacingRight)
-            direction = Vector2.left;
-        else
+        if (this.transform.position.x - objHealth.transform.position.x >= 0)
             direction = Vector2.right;
-        collided = true;
+        else
+            direction = Vector2.left;
+        //collided = true;
         
-        objHealth.Damage(damageAmount);
+        objHealth.Damage(damageAmount, -direction);
         StartCoroutine(NoLongerColliding());
     }
 
      private IEnumerator NoLongerColliding()
     {
         yield return new WaitForSeconds(meleeAttackManager.movementTime);
-        collided = false;
+        //collided = false;
     }
 
 

@@ -13,8 +13,8 @@ TagManager:
   - UI
   - Platform
   - Enemy
-  - 
-  - 
+  - Player
+  - PlayerWeapon
   - 
   - 
   - 
@@ -43,4 +43,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 82650675
+    locked: 0
+  - name: New Layer
+    uniqueID: 3838539363
     locked: 0
