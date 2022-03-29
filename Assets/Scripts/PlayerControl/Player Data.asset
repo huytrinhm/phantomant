@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64c647996b84d8d41bee7b6ec41e7f48, type: 3}
+  m_Name: Player Data
+  m_EditorClassIdentifier: 
+  gravityScale: 1
+  fallGravityMult: 2
+  quickFallGravityMult: 3
+  dragAmount: 0.02
+  frictionAmount: 0.5
+  coyoteTime: 0.2
+  runMaxSpeed: 15
+  runAccel: 3
+  runDeccel: 10
+  accelInAir: 0.25
+  deccelInAir: 0.95
+  accelPower: 1
+  stopPower: 1.2
+  turnPower: 1.2
+  jumpForce: 7.5
+  jumpCutMultiplier: 0.7
+  jumpBufferTime: 0.1
+  dashAmount: 1
+  dashSpeed: 25
+  dashAttackTime: 0.1
+  dashAttackDragAmount: 1
+  dashEndTime: 0
+  dashUpEndMult: 0.1
+  dashEndRunLerp: 0.3
+  dashBufferTime: 0.05
+  dashShakeAmount: 2
+  dashShakeFrequency: 0.01
+  dashGhostInterval: 0.04
+  dashGhostFadeTime: 0.5
+  ghostPrefab: {fileID: 1601523193004254874, guid: 35be72b0451e076408719723e152c5eb, type: 3}
+  enableDustTrail: 1
+  doKeepRunMomentum: 0
