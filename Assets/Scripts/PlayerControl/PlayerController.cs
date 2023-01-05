@@ -49,6 +49,8 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private LayerMask _groundLayer;
 	#endregion
 
+	private bool IsEndRoom = false;
+
 	private void Awake()
 	{
 		rb = GetComponent<Rigidbody2D>();
@@ -73,26 +75,41 @@ public class PlayerController : MonoBehaviour
         {
 			if(!_dustTrail.isPlaying) _dustTrail.Play();
         }
+
+		if (Mathf.Abs(rb.velocity.x) > 0.01f && _lastOnGroundTime > 0 && !_isJumping && !_isDashing) {
+            if (GameMaster.Instance.IsOnMap1)
+                AudioManager.Instance.PlaySoundEffect("hero_run_stone");
+            else
+                AudioManager.Instance.PlaySoundEffect("hero_run_grass");
+		} else {
+            if (GameMaster.Instance.IsOnMap1)
+                AudioManager.Instance.StopSoundEffect("hero_run_stone");
+            else
+                AudioManager.Instance.StopSoundEffect("hero_run_grass");
+		}
         #endregion
 
 		#region INPUT HANDLER
-		_moveInput.x = Input.GetAxisRaw("Horizontal");
-		_moveInput.y = Input.GetAxisRaw("Vertical");
+		if (!IsEndRoom)
+        {
+			_moveInput.x = Input.GetAxisRaw("Horizontal");
+			_moveInput.y = Input.GetAxisRaw("Vertical");
 
-		if (Input.GetButtonDown("Jump"))
-		{
-			_lastPressedJumpTime = data.jumpBufferTime;
-		}
+			if (Input.GetButtonDown("Jump"))
+			{
+				_lastPressedJumpTime = data.jumpBufferTime;
+			}
 
-		if (Input.GetButtonUp("Jump"))
-		{
-			if (CanJumpCut())
-				JumpCut();
-		}
+			if (Input.GetButtonUp("Jump"))
+			{
+				if (CanJumpCut())
+					JumpCut();
+			}
 
-		if (Input.GetButtonDown("Dash"))
-		{
-			_lastPressedDashTime = data.dashBufferTime;
+			if (Input.GetButtonDown("Dash"))
+			{
+				_lastPressedDashTime = data.dashBufferTime;
+			}
 		}
 		#endregion
 
@@ -110,8 +127,14 @@ public class PlayerController : MonoBehaviour
 		#region PHYSICS CHECKS
 		if (!_isDashing && !_isJumping)
 		{
-			if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
+			if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer)) {
+				if(_lastOnGroundTime <= 0) {
+                    AudioManager.Instance.PlaySoundEffect("hero_land");
+					// TODO: Custom landing dust
+                	_jumpDust.Play();
+				}
 				_lastOnGroundTime = data.coyoteTime;
+			}
 		}
 		#endregion
 
@@ -291,7 +314,8 @@ public class PlayerController : MonoBehaviour
 		#endregion
 
 		_jumpDust.Play();
-	}
+        AudioManager.Instance.PlaySoundEffect("hero_jump");
+    }
 
 	private void JumpCut()
 	{
@@ -311,6 +335,7 @@ public class PlayerController : MonoBehaviour
 
 		GameMaster.Instance.CameraNoise.m_FrequencyGain = data.dashShakeFrequency;
 		GameMaster.Instance.CameraNoise.m_AmplitudeGain = data.dashShakeAmount;
+		AudioManager.Instance.PlaySoundEffect("hero_dash");
 		_dashGhostRoutine = StartCoroutine(DashGhost());
 	}
 
@@ -398,4 +423,12 @@ public class PlayerController : MonoBehaviour
 	}
 
     #endregion
+
+	public void EndRoom()
+    {
+		GameMaster.Instance.AllowSwitchMap = false;
+		this.IsEndRoom = true;
+		_moveInput.x = 1;
+		_moveInput.y = 0;
+	}
 }

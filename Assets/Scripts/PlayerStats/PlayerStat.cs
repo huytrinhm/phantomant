@@ -58,7 +58,7 @@ public class PlayerStat : MonoBehaviour
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
-                GameMaster.Instance.GameOver();
+                StartCoroutine(TurnOffHitAndGameOver());
             }
             else
             {
@@ -73,6 +73,20 @@ public class PlayerStat : MonoBehaviour
         hit = false;
         spriteRenderer.material.SetFloat("_FadeAmount", 0);
         cc.enabled = true;
+    }
+
+    private IEnumerator TurnOffHitAndGameOver()
+    {
+        yield return new WaitForSeconds(invulnerabilityTime);
+        hit = false;
+        spriteRenderer.material.SetFloat("_FadeAmount", 0);
+        cc.enabled = true;
+        Destroy(this.gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        GameMaster.Instance?.GameOver();
     }
 
     private void UpdateHealthBar()

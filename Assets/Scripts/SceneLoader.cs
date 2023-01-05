@@ -14,6 +14,11 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _musicText;
     [SerializeField] private TextMeshProUGUI _soundEffectText;
 
+    private void Start()
+    {
+        AudioManager.Instance.PlayMusic("menu_music");
+    }
+
     public void StartGame()
     {
         StartCoroutine(CrossFade());
@@ -57,5 +62,15 @@ public class SceneLoader : MonoBehaviour
     {
         AudioManager.Instance.SoundEffectVolume = _soundEffectSlider.value;
         _soundEffectText.text = (AudioManager.Instance.SoundEffectVolume * 100).ToString();
+    }
+
+    public void Hover()
+    {
+        AudioManager.Instance.PlaySoundEffect("button_hover");
+    }
+
+    public void Click()
+    {
+        AudioManager.Instance.PlaySoundEffect("button_click");
     }
 }

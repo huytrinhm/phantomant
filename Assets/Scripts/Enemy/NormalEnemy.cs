@@ -21,6 +21,8 @@ public class NormalEnemy : MonoBehaviour
 
     public Vector2 leftHome;
     public Vector2 rightHome;
+    private Vector2 absLeftHome;
+    private Vector2 absRightHome;
     private bool _isMovingToRightHome;
 
     public float hitPerSec = 2;
@@ -29,7 +31,15 @@ public class NormalEnemy : MonoBehaviour
     private bool isAttacking;
     private PlayerStat targetStat;
 
-	private Rigidbody2D rb;
+
+    [SerializeField] private Transform _groundCheckPoint;
+    [SerializeField] private Vector2 _groundCheckSize;
+    [SerializeField] private LayerMask _groundLayer;
+    public float dragAmount;
+    public float frictionAmount;
+    private bool onGround;
+
+    private Rigidbody2D rb;
     private Animator animator;
 
     private Vector2 movingDirection;
@@ -39,6 +49,9 @@ public class NormalEnemy : MonoBehaviour
         rb = this.GetComponent<Rigidbody2D>();
         targetStat = target.GetComponent<PlayerStat>();
         animator = this.GetComponent<Animator>();
+
+        absLeftHome = (Vector2)this.transform.position + leftHome;
+        absRightHome = (Vector2)this.transform.position + rightHome;
     }
 
     private void Start()
@@ -57,11 +70,13 @@ public class NormalEnemy : MonoBehaviour
         if (isAttacking)
             return;
 
+        if (attackCooldown > 0)
+            attackCooldown -= Time.deltaTime;
+
 		if (movingDirection.x != 0)
 			CheckDirectionToFace(movingDirection.x > 0);
 
-		if (attackCooldown > 0)
-            attackCooldown -= Time.deltaTime;
+        onGround = Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer);
 
         if (TargetInActiveRange())
         {
@@ -76,12 +91,12 @@ public class NormalEnemy : MonoBehaviour
         } 
         else
         {
-            if (this.transform.position.x <= leftHome.x)
+            if (this.transform.position.x <= absLeftHome.x)
             {
                 movingDirection = Vector2.right;
                 _isMovingToRightHome = true;
             }
-            else if (this.transform.position.x >= rightHome.x)
+            else if (this.transform.position.x >= absRightHome.x)
             {
                 movingDirection = Vector2.left;
                 _isMovingToRightHome = false;
@@ -102,8 +117,24 @@ public class NormalEnemy : MonoBehaviour
         if (Time.timeScale < 0.01f)
             return;
 
-		if (movingDirection != Vector2.zero)
+        if (onGround)
+            Drag(frictionAmount);
+        else
+            Drag(dragAmount);
+
+        if (movingDirection != Vector2.zero)
 			Run();
+    }
+
+    private void Drag(float amount)
+    {
+        Vector2 force = amount * rb.velocity.normalized;
+        force.x = Mathf.Min(Mathf.Abs(rb.velocity.x), Mathf.Abs(force.x));
+        force.y = Mathf.Min(Mathf.Abs(rb.velocity.y), Mathf.Abs(force.y));
+        force.x *= Mathf.Sign(rb.velocity.x);
+        force.y *= Mathf.Sign(rb.velocity.y);
+
+        rb.AddForce(-force, ForceMode2D.Impulse);
     }
 
     private void MoveToTarget()
@@ -151,8 +182,9 @@ public class NormalEnemy : MonoBehaviour
         Gizmos.DrawWireCube(transform.position, new Vector2(activeHorizontalRadius * 2, activeVerticalRadius * 2));
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(transform.position, new Vector2(deadzoneRadius * 2, activeVerticalRadius * 2));
-        Gizmos.DrawIcon(leftHome, "sv_icon_dot10_pix16_gizmo");
-        Gizmos.DrawIcon(rightHome, "sv_icon_dot10_pix16_gizmo");
+
+        Gizmos.DrawIcon((Vector2)this.transform.position + leftHome, "sv_icon_dot10_pix16_gizmo");
+        Gizmos.DrawIcon((Vector2)this.transform.position + rightHome, "sv_icon_dot10_pix16_gizmo");
     }
 	
 	public void SetGravityScale(float scale)
@@ -201,13 +233,13 @@ public class NormalEnemyEditor : Editor
         NormalEnemy currentEnemy = target as NormalEnemy;
         
         EditorGUI.BeginChangeCheck();
-        Vector3 newLeftHome = Handles.PositionHandle(currentEnemy.leftHome, Quaternion.identity);
-        Vector3 newRightHome = Handles.PositionHandle(currentEnemy.rightHome, Quaternion.identity);
+        Vector3 newLeftHome = Handles.PositionHandle(currentEnemy.leftHome + (Vector2)currentEnemy.transform.position, Quaternion.identity);
+        Vector3 newRightHome = Handles.PositionHandle(currentEnemy.rightHome + (Vector2)currentEnemy.transform.position, Quaternion.identity);
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(currentEnemy, "Change left/right home of LostSoul");
-            currentEnemy.leftHome = newLeftHome;
-            currentEnemy.rightHome = newRightHome;
+            currentEnemy.leftHome = newLeftHome - currentEnemy.transform.position;
+            currentEnemy.rightHome = newRightHome - currentEnemy.transform.position;
         }
     }
 }

@@ -20,16 +20,17 @@ public class BigEnemy : MonoBehaviour
     public float dashAttackTime = 0.7f;
     public float dashGhostInterval = 1;
     public float dashGhostFadeTime;
-    public float distanceAfterDash;
-    public float dashDuration;
     public GameObject ghostPrefab;
     
+    public float dashPerSec = 2;
     public float hitPerSec = 2;
 
     private bool _isDashing;
     private float _dashStartTime;
 
+    private float dashCooldown;
     private float attackCooldown;
+    private bool attackedPlayer = true;
     private bool _isFacingRight;
     private bool isAttacking;
 
@@ -40,6 +41,16 @@ public class BigEnemy : MonoBehaviour
     private Vector2 movingDirection;
     private Vector2 currentPosition;
     private Animator animator;
+
+    [SerializeField] private Transform _groundCheckPoint;
+    [SerializeField] private Vector2 _groundCheckSize;
+    [SerializeField] private LayerMask _groundLayer;
+    public float dashAttackDragAmount;
+    public float dragAmount;
+    public float frictionAmount;
+    private bool onGround;
+
+    public float dashSpeed;
 
     private void Awake()
     {
@@ -67,6 +78,19 @@ public class BigEnemy : MonoBehaviour
         if (movingDirection.x != 0)
             CheckDirectionToFace(movingDirection.x > 0);
 
+        onGround = Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer);
+
+        if (!_isDashing)
+        {
+            if (target.position.x < this.transform.position.x && _isFacingRight)
+                Turn();
+            else if (target.position.x > this.transform.position.x && !_isFacingRight)
+                Turn();
+        }
+
+        if (dashCooldown > 0)
+            dashCooldown -= Time.deltaTime;
+
         if (attackCooldown > 0)
             attackCooldown -= Time.deltaTime;
 
@@ -77,21 +101,21 @@ public class BigEnemy : MonoBehaviour
             StopDash(movingDirection);
         }
 
-        if (TargetInActiveRange() && attackCooldown <= 0)
+        if (TargetInActiveRange())
         {
             if (!TargetInDeadzone())
                 MoveToTarget();
             else
             {
-                if(_isDashing)
-                {
-                    _isDashing = false;
-                    animator.SetBool("Attack", false);
-                    StopDash(movingDirection);
-                }
-                movingDirection = Vector2.zero;
-                // if (attackCooldown <= 0)
-                Attack();
+                //if(_isDashing)
+                //{
+                //    _isDashing = false;
+                //    animator.SetBool("Attack", false);
+                //    StopDash(movingDirection);
+                //}
+                //movingDirection = Vector2.zero;
+                if ((!_isDashing && attackCooldown <= 0) || (_isDashing && !attackedPlayer))
+                    Attack();
             }
         } 
         else
@@ -105,15 +129,35 @@ public class BigEnemy : MonoBehaviour
         if (Time.timeScale < 0.01f)
             return;
 
-        if (!_isDashing && movingDirection != Vector2.zero && attackCooldown <= 0) 
+        if (_isDashing)
+            Drag(DashAttackOver() ? dragAmount : dashAttackDragAmount);
+        else if (onGround)
+            Drag(frictionAmount);
+        else
+            Drag(dragAmount);
+
+        if (!_isDashing && movingDirection != Vector2.zero && dashCooldown <= 0) 
         {
+            attackedPlayer = false;
+            dashCooldown = 1 / dashPerSec;
             _dashStartTime = Time.time;
             _isDashing = true;
             animator.SetBool("Attack", true);
             Dash();
         }
     }
-    
+
+    private void Drag(float amount)
+    {
+        Vector2 force = amount * rb.velocity.normalized;
+        force.x = Mathf.Min(Mathf.Abs(rb.velocity.x), Mathf.Abs(force.x));
+        force.y = Mathf.Min(Mathf.Abs(rb.velocity.y), Mathf.Abs(force.y));
+        force.x *= Mathf.Sign(rb.velocity.x);
+        force.y *= Mathf.Sign(rb.velocity.y);
+
+        rb.AddForce(-force, ForceMode2D.Impulse);
+    }
+
     //RANGE DETECT PLAYER
     private bool TargetInActiveRange()
     {
@@ -136,20 +180,29 @@ public class BigEnemy : MonoBehaviour
 
     //DASH TO PLAYER
     private void Dash()
-    {   
+    {
+        StartCoroutine(DashShake());
         StartDash(movingDirection);
+    }
+
+    IEnumerator DashShake()
+    {
+        GameMaster.Instance.CameraNoise.m_FrequencyGain = 0.02f;
+        GameMaster.Instance.CameraNoise.m_AmplitudeGain = 2.5f;
+        yield return new WaitForSeconds(0.2f);
+
+        GameMaster.Instance.CameraNoise.m_FrequencyGain = 0f;
+        GameMaster.Instance.CameraNoise.m_AmplitudeGain = 0f;
     }
     
     private void StartDash(Vector2 dir)
     {
-        
-        float distance = Mathf.Abs(target.position.x - this.transform.position.x);
-        float dashSpeed = (distance + distanceAfterDash) / dashDuration;
         rb.velocity = dir.normalized * dashSpeed;
-        
+
         /*float step = dashSpeed * Time.deltaTime;
         currentPosition = new Vector2 (transform.position.x,target.position.y);
         transform.position = Vector2.MoveTowards(currentPosition, target.position,step);*/
+        AudioManager.Instance.PlaySoundEffect("brute_dash");
         _dashGhostRoutine = StartCoroutine(DashGhost());
 
     }
@@ -179,12 +232,12 @@ public class BigEnemy : MonoBehaviour
     IEnumerator SpawnDashGhost()
     {
         GameObject ghost = Instantiate(ghostPrefab, this.transform.position, this.transform.rotation);
-        Destroy(ghost,dashGhostFadeTime);
+        Destroy(ghost, dashGhostFadeTime);
         ghost.transform.localScale = this.transform.localScale;
         SpriteRenderer ghostRenderer = ghost.GetComponent<SpriteRenderer>();
         ghostRenderer.sprite = _bigEnemyRenderer.sprite;
         float elapsed = 0.1f;
-        while(elapsed < dashGhostFadeTime)
+        while(elapsed < dashGhostFadeTime && ghostRenderer != null)
         {
             ghostRenderer.color = new Color(
                 ghostRenderer.color.r,
@@ -202,10 +255,14 @@ public class BigEnemy : MonoBehaviour
     private void Attack()
     {
         attackCooldown = 1 / hitPerSec;
-        if (this.transform.position.x - target.position.x >= 0)
+        attackedPlayer = true;
+        if(!_isFacingRight)
             targetStat.Damage(knockbackHorizontalForce, knockbackVerticalForce, strength, Vector2.left);
         else
             targetStat.Damage(knockbackHorizontalForce, knockbackVerticalForce, strength, Vector2.right);
+
+        if(!_isDashing)
+            AudioManager.Instance.PlaySoundEffect("brute_attack");
     }
 
 

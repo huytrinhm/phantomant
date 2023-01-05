@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: Player Data
   m_EditorClassIdentifier: 
   gravityScale: 1
-  fallGravityMult: 2
-  quickFallGravityMult: 3
-  dragAmount: 0.02
+  fallGravityMult: 4
+  quickFallGravityMult: 12
+  dragAmount: 0.3
   frictionAmount: 0.5
   coyoteTime: 0.2
   runMaxSpeed: 15
   runAccel: 3
   runDeccel: 10
-  accelInAir: 0.25
+  accelInAir: 0.9
   deccelInAir: 0.95
   accelPower: 1
   stopPower: 1.2
   turnPower: 1.2
-  jumpForce: 7.5
+  jumpForce: 12
   jumpCutMultiplier: 0.7
   jumpBufferTime: 0.1
   dashAmount: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
   dashEndTime: 0
   dashUpEndMult: 0.1
   dashEndRunLerp: 0.3
-  dashBufferTime: 0.05
+  dashBufferTime: 0.1
   dashShakeAmount: 2
   dashShakeFrequency: 0.01
   dashGhostInterval: 0.04

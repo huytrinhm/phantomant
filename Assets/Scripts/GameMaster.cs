@@ -10,6 +10,7 @@ public class GameMaster : MonoBehaviour
 {
     private static GameMaster _instance;
     public static GameMaster Instance { get { return _instance; } }
+    public float _cameraSize = 8.73f;
 
     [Header("General")]
     [SerializeField] private CinemachineBrain _cinemachineBrain;
@@ -31,14 +32,20 @@ public class GameMaster : MonoBehaviour
         get { return _camera; }
         set { 
             _camera = value;
-            _camera.m_Lens.OrthographicSize = 5;
+            _camera.m_Lens.OrthographicSize = _cameraSize;
         }
     }
 
+    public CameraRoom QueueCam;
+
     [Header("Change Map")]
-    [SerializeField] private Collider2D _playerCollider;
+    public Collider2D _playerCollider;
     [SerializeField] private GameObject _map1;
     [SerializeField] private GameObject _map2;
+    [SerializeField] private GameObject _spikesMap1;
+    [SerializeField] private GameObject _spikesMap2;
+    [SerializeField] private GameObject _backgroundMap1;
+    [SerializeField] private GameObject _backgroundMap2;
     [SerializeField] private float _animStartTime = 0.2f;
     [SerializeField] private float _animHangTime = 0.3f;
     [SerializeField] private float _animEndTime = 0.1f;
@@ -71,6 +78,13 @@ public class GameMaster : MonoBehaviour
     private int _defaultLayer;
     private int _platformLayer;
 
+    public bool IsOnMap1 = true;
+    public bool CutscenePlaying = false;
+    public bool AllowSwitchMap = true;
+
+    public int KillCount = 0;
+    public int ScrollCount = 0;
+
     private bool _isPlayingInvalidAnim = false;
 
     private void Awake()
@@ -95,15 +109,20 @@ public class GameMaster : MonoBehaviour
         _platformLayer = LayerMask.NameToLayer("Platform");
     }
 
+    private void Start()
+    {
+        AudioManager.Instance.PlayMusic("main_music");
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("ChangeMap") && !_isPlayingInvalidAnim && !IsPaused)
+        if(Input.GetButtonDown("ChangeMap") && !_isPlayingInvalidAnim && !IsPaused && AllowSwitchMap)
         {
             SwitchMap();
         }
 
-        if(Input.GetButtonDown("Pause"))
+        if(Input.GetButtonDown("Pause") && !CutscenePlaying)
         {
             if (!_pauseMenu.activeInHierarchy && !_settingsMenu.activeInHierarchy)
                 PauseGame();
@@ -114,6 +133,7 @@ public class GameMaster : MonoBehaviour
 
     private void SwitchMap()
     {
+        AudioManager.Instance.PlaySoundEffect("hero_switch_map");
         if(_map1Collider.isTrigger)
         {
             if (_map1Collider.IsTouching(_playerCollider))
@@ -136,6 +156,11 @@ public class GameMaster : MonoBehaviour
         _map2Renderer.enabled = !_map2Renderer.enabled;
         _map1Shadow.enabled = !_map1Shadow.enabled;
         _map2Shadow.enabled = !_map2Shadow.enabled;
+        _spikesMap1.SetActive(!_spikesMap1.activeSelf);
+        _spikesMap2.SetActive(!_spikesMap2.activeSelf);
+        _backgroundMap1.SetActive(!_backgroundMap1.activeSelf);
+        _backgroundMap2.SetActive(!_backgroundMap2.activeSelf);
+
         _changeMapParticle.Play();
         if (_map1Renderer.enabled)
         {
@@ -146,6 +171,12 @@ public class GameMaster : MonoBehaviour
             _map1.layer = _defaultLayer;
             _map2.layer = _platformLayer;
         }
+
+        IsOnMap1 = _map1Renderer.enabled;
+        if (IsOnMap1)
+            AudioManager.Instance.StopSoundEffect("hero_run_grass");
+        else
+            AudioManager.Instance.StopSoundEffect("hero_run_stone");
     }
 
     private void InvalidSwitchMap()
@@ -161,6 +192,10 @@ public class GameMaster : MonoBehaviour
         _map2Renderer.enabled = !_map2Renderer.enabled;
         _map1Shadow.enabled = !_map1Shadow.enabled;
         _map2Shadow.enabled = !_map2Shadow.enabled;
+        _spikesMap1.SetActive(!_spikesMap1.activeSelf);
+        _spikesMap2.SetActive(!_spikesMap2.activeSelf);
+        _backgroundMap1.SetActive(!_backgroundMap1.activeSelf);
+        _backgroundMap2.SetActive(!_backgroundMap2.activeSelf);
 
         _changeMapParticle.Play();
 
@@ -183,6 +218,10 @@ public class GameMaster : MonoBehaviour
         _map2Renderer.enabled = !_map2Renderer.enabled;
         _map1Shadow.enabled = !_map1Shadow.enabled;
         _map2Shadow.enabled = !_map2Shadow.enabled;
+        _spikesMap1.SetActive(!_spikesMap1.activeSelf);
+        _spikesMap2.SetActive(!_spikesMap2.activeSelf);
+        _backgroundMap1.SetActive(!_backgroundMap1.activeSelf);
+        _backgroundMap2.SetActive(!_backgroundMap2.activeSelf);
 
         elapsed = 0f;
         while (elapsed < _animEndTime)
@@ -202,6 +241,8 @@ public class GameMaster : MonoBehaviour
     private void PauseGame()
     {
         IsPaused = true;
+        AudioManager.Instance.PauseAllSoundEffect();
+        AudioManager.Instance.PlayMusic("menu_music");
         _cinemachineBrain.m_IgnoreTimeScale = false;
         
         Time.timeScale = 0f;
@@ -211,6 +252,8 @@ public class GameMaster : MonoBehaviour
     public void ResumeGame()
     {
         IsPaused = false;
+        AudioManager.Instance.UnPauseAllSoundEffect();
+        AudioManager.Instance.PlayMusic("main_music");
         _cinemachineBrain.m_IgnoreTimeScale = true;
         Time.timeScale = 1f;
         _pauseMenu.SetActive(false);
@@ -240,9 +283,10 @@ public class GameMaster : MonoBehaviour
     public void GameOver()
     {
         IsPaused = true;
+        AudioManager.Instance.StopAllSoundEffect();
         _cinemachineBrain.m_IgnoreTimeScale = false;
         Time.timeScale = 0f;
-        _gameOverMenu.SetActive(true);
+        _gameOverMenu?.SetActive(true);
     }
 
     public void OnMusicChanged()
@@ -259,10 +303,8 @@ public class GameMaster : MonoBehaviour
 
     public void ReloadLevel()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        IsPaused = false;
-        _cinemachineBrain.m_IgnoreTimeScale = true;
         Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void ShakeCamera(float amplitude, float frequency, float duration)
@@ -278,5 +320,30 @@ public class GameMaster : MonoBehaviour
             yield return null;
         yield return new WaitForSecondsRealtime(duration);
         CameraNoise.m_AmplitudeGain = 0f;
+    }
+
+    public void Hover()
+    {
+        AudioManager.Instance.PlaySoundEffect("button_hover");
+    }
+
+    public void Click()
+    {
+        AudioManager.Instance.PlaySoundEffect("button_click");
+    }
+
+    public void CutsceneStart()
+    {
+        CutscenePlaying = true;
+        IsPaused = true;
+        AudioManager.Instance.StopAllSoundEffect();
+        Time.timeScale = 0f;
+    }
+
+    public void CutsceneEnd()
+    {
+        CutscenePlaying = false;
+        IsPaused = false;
+        Time.timeScale = 1f;
     }
 }

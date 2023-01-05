@@ -11,11 +11,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main.unity
     guid: 94a3876f0605f164d8001fc4be3ed71d
-  - enabled: 1
-    path: Assets/Scenes/Prototype_Cutscene.unity
-    guid: 06fba8530abbb5f47a83beb8f118c5e4
-  - enabled: 1
-    path: Assets/Scenes/TestScene2.unity
-    guid: a49e43b9a49151244971b0ecf5ce8dc0
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: b6ccd93f89d7048af81f75f831d2e375, type: 2}

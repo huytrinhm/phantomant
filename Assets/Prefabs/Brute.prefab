@@ -4938,6 +4938,36 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
+--- !u!1 &4552998071735320794
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8075700455087174853}
+  m_Layer: 8
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8075700455087174853
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4552998071735320794}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 5643309936101830523}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5643309935259510974
 GameObject:
   m_ObjectHideFlags: 0
@@ -5199,7 +5229,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5643309936101830523
 Transform:
   m_ObjectHideFlags: 0
@@ -5213,6 +5243,7 @@ Transform:
   m_Children:
   - {fileID: 5643309936806138812}
   - {fileID: 252813789}
+  - {fileID: 8075700455087174853}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5280,9 +5311,9 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 6
+  m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 4
   m_Material: {fileID: 6200000, guid: 10078aa961bbffe4dbe8173afb1cf1c3, type: 2}
   m_Interpolate: 1
   m_SleepingMode: 0
@@ -5331,17 +5362,7 @@ CompositeCollider2D:
   m_GeometryType: 0
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 5643309936101830525}
-    m_ColliderPaths:
-    - - X: 7756345
-        Y: -14633470
-      - X: 7756345
-        Y: 14143834
-      - X: -7858734
-        Y: 14143541
-      - X: -7858441
-        Y: -14633470
+  m_ColliderPaths: []
   m_CompositePaths:
     m_Paths:
     - - {x: 0.7756052, y: -1.463347}
@@ -5386,16 +5407,24 @@ MonoBehaviour:
   activeHorizontalRadius: 5
   activeVerticalRadius: 1.5
   deadzoneRadius: 1
-  knockbackHorizontalForce: 15
-  knockbackVerticalForce: 3
+  knockbackHorizontalForce: 10
+  knockbackVerticalForce: 6
   strength: 2
-  dashAttackTime: 1
-  dashGhostInterval: 0.04
+  dashAttackTime: 0.3
+  dashGhostInterval: 0.06
   dashGhostFadeTime: 0.5
-  distanceAfterDash: 2
-  dashDuration: 0.1
   ghostPrefab: {fileID: 828181584720176178, guid: 860f95ac5a058e5488a067c5d76a3392, type: 3}
-  hitPerSec: 0.5
+  dashPerSec: 0.5
+  hitPerSec: 1
+  _groundCheckPoint: {fileID: 8075700455087174853}
+  _groundCheckSize: {x: 0.3, y: 0.1}
+  _groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  dashAttackDragAmount: 1
+  dragAmount: 0.3
+  frictionAmount: 10
+  dashSpeed: 25
 --- !u!95 &5643309936101830497
 Animator:
   serializedVersion: 3

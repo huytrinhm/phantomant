@@ -13,6 +13,7 @@ public class MeleeAttackManager : MonoBehaviour
    
     private Animator _playerAnimation;
     private float attackCooldown;
+    public bool IsEndRoom = false;
 
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class MeleeAttackManager : MonoBehaviour
 
     private void Update()
     {
-        if(!GameMaster.Instance.IsPaused)
+        if(!GameMaster.Instance.IsPaused && !IsEndRoom)
             CheckInput();
     }
 
@@ -45,6 +46,7 @@ public class MeleeAttackManager : MonoBehaviour
 
         if (meleeAttack)
         {
+            AudioManager.Instance.PlaySoundEffect("hero_attack");
             _playerAnimation.SetTrigger("Attack");
             StartCoroutine(AttackAnimator());
         }

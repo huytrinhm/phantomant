@@ -58,10 +58,10 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 7, y: 5}
-      - {x: 7, y: -5}
-      - {x: 24.5, y: -5}
-      - {x: 24.5, y: 5}
+    - - {x: -15.5, y: 8.5}
+      - {x: -15.5, y: -8.5}
+      - {x: 15.5, y: -8.5}
+      - {x: 15.5, y: 8.5}
 --- !u!114 &7539222074068990236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 7539222074495669419}
   - component: {fileID: 7539222074495669421}
   m_Layer: 0
-  m_Name: CM vcam2
+  m_Name: CM vcam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,7 +101,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7539222074495669418}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5, y: -1.3, z: -10}
+  m_LocalPosition: {x: -3.9, y: 15.3, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7539222074809903725}
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 5
+    OrthographicSize: 8.73
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0

@@ -54,8 +54,7 @@ public class EnemyHealth : MonoBehaviour
             if (currentHealth <= 0)
             {
                 currentHealth = 0;
-                Instantiate(GameMaster.Instance.DeathParticle, this.transform.position, Quaternion.identity);
-                Destroy(gameObject);
+                Kill();
                 // gameObject.SetActive(false);
             }
             else
@@ -75,5 +74,12 @@ public class EnemyHealth : MonoBehaviour
     private void UpdateHealthBar()
     {
         healthBar.value = Mathf.Clamp01(currentHealth / maxHealth);
+    }
+
+    public void Kill()
+    {
+        GameMaster.Instance.KillCount++;
+        Instantiate(GameMaster.Instance.DeathParticle, this.transform.position, Quaternion.identity);
+        Destroy(gameObject);
     }
 }

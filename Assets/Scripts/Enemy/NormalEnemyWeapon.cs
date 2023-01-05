@@ -27,6 +27,7 @@ public class NormalEnemyWeapon : MonoBehaviour
         else
             direction = Vector2.left;
 
+        AudioManager.Instance.PlaySoundEffect("lostsoul_attack");
         objHealth.Damage(thisEnemy.knockbackHorizontalForce, thisEnemy.knockbackVerticalForce, thisEnemy.strength, -direction);
     }
 }

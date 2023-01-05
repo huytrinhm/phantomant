@@ -22,7 +22,7 @@ public class CutsceneManager : MonoBehaviour
 
     private void Update()
     {
-        if(ended && Input.anyKey)
+        if(ended && Input.anyKeyDown)
         {
             StartCoroutine(CrossFade());
         }
@@ -32,7 +32,7 @@ public class CutsceneManager : MonoBehaviour
     {
         crossFade.SetTrigger("Trans");
         yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
     }
 
     void EndVideo(VideoPlayer vp)
